@@ -46,7 +46,7 @@ impl ICMP {
     }
 
     pub fn send_v4(&mut self, tr: &mut TransportSender) -> Result<usize, std::io::Error> {
-        let mut buffer: Vec<u8> = vec![0; 32];
+        let mut buffer: Vec<u8> = vec![0; 64];
         let mut packet = MutableEchoRequestPacket::new(&mut buffer[..]).unwrap();
         packet.set_icmp_type(IcmpTypes::EchoRequest);
         packet.set_identifier(self.id);
@@ -56,7 +56,7 @@ impl ICMP {
     }
 
     pub fn send_v6(&mut self, tr: &mut TransportSender) -> Result<usize, std::io::Error> {
-        let mut buffer: Vec<u8> = vec![0; 32];
+        let mut buffer: Vec<u8> = vec![0; 64];
         let mut packet = MutableIcmpv6Packet::new(&mut buffer[..]).unwrap();
         packet.set_icmpv6_type(Icmpv6Types::EchoRequest);
         packet.set_checksum(checksum(packet.packet(), 1));

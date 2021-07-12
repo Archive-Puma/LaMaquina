@@ -12,15 +12,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "aizawa"
-version = "0.1.0"
-dependencies = [
- "dns-lookup",
- "pnet",
- "rand",
-]
-
-[[package]]
 name = "cfg-if"
 version = "1.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -62,6 +53,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "4088d739b183546b239688ddbc79891831df421773df95e236daf7867866d355"
 dependencies = [
  "serde",
+]
+
+[[package]]
+name = "lamaquina"
+version = "0.1.0"
+dependencies = [
+ "dns-lookup",
+ "pnet",
+ "rand",
 ]
 
 [[package]]

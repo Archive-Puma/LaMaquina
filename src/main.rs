@@ -37,7 +37,7 @@ fn main() {
     let timeout = Duration::from_secs(timeout_sec);
 
     match ping(verbose, addr, timeout) {
-        Ok(size) => println!("{}", size),
-        Err(err) => println!("{}", err),
+        Ok((ip, host)) => println!("+ {} ({})", ip, host),
+        Err(err) => println!("- {}", err),
     }
 }

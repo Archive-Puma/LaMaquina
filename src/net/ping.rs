@@ -13,7 +13,7 @@ use std::net::IpAddr;
 use std::str::FromStr;
 use std::time::Duration;
 
-pub fn ping(v: bool, address: &str, timeout: Duration) -> Result<IpAddr, Error> {
+pub fn ping(v: bool, address: &str, timeout: Duration) -> Result<(IpAddr, String), Error> {
     // get ip
     let (ip, host) = match IpAddr::from_str(address) {
         // lookup hostname (if it is possible)
@@ -50,6 +50,10 @@ pub fn ping(v: bool, address: &str, timeout: Duration) -> Result<IpAddr, Error> 
         Ok((tx, rx)) => (tx, rx),
         Err(_) => return Err(Error::PrivilegeRequired),
     };
+    // set ttl (only IPv4)
+    if ip.is_ipv4() {
+        tx.set_ttl(u8::MAX).unwrap();
+    }
     // build and send package
     if v {
         println!("* Pinging {} ({}) 32 bytes of data.", ip, host)
@@ -95,16 +99,17 @@ pub fn ping(v: bool, address: &str, timeout: Duration) -> Result<IpAddr, Error> 
     // check package type
     match recv_pkg.get_icmp_type() {
         IcmpTypes::EchoRequest => {
+            // check the payload
             if v {
                 println!("* {} is up!", recv_addr);
             }
-            Ok(recv_addr)
+            Ok((recv_addr, host))
         }
         IcmpTypes::EchoReply => {
             if v {
                 println!("* {} is up!", recv_addr);
             }
-            Ok(recv_addr)
+            Ok((recv_addr, host))
         }
         IcmpTypes::DestinationUnreachable => {
             if v {
