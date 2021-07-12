@@ -32,7 +32,7 @@ pub fn ping(v: bool, address: &str, timeout: Duration) -> Result<(IpAddr, String
                     let ip = lookup.unwrap();
                     // double check the address
                     match dns_lookup::lookup_addr(ip) {
-                        Ok(host) => (ip.to_owned(), host),
+                        Ok(host) => (host.parse::<IpAddr>().unwrap_or(*ip), address.to_string()),
                         Err(_) => (ip.to_owned(), address.to_string()),
                     }
                 }
@@ -144,55 +144,55 @@ mod test {
     use super::*;
 
     // test template
-    fn ping_test(ip: &str) {
+    fn ping_test(ip: &str, _result: (&str, &str)) {
         assert_eq!(
             true,
             match ping(false, ip, Duration::from_secs(1)) {
-                Err(Error::PrivilegeRequired) => true,
-                Ok(_) => true,
+                Ok(result) => result.0.to_string() == _result.0.to_owned() && result.1 == _result.1,
                 _ => false,
             }
         )
     }
 
     // IPv4
-
     #[test]
     fn ping_ipv4_loopback() {
-        ping_test("127.0.0.1")
+        ping_test("127.0.0.1", ("127.0.0.1", "localhost"))
     }
 
     #[test]
     fn ping_ipv4_local() {
-        ping_test("192.168.0.1")
+        ping_test("192.168.0.1", ("192.168.0.1", "_gateway"))
     }
 
     #[test]
     fn ping_ipv4_external() {
-        ping_test("1.1.1.1")
+        ping_test("1.1.1.1", ("1.1.1.1", "one.one.one.one"))
     }
 
     // IPv6
-
     #[test]
     fn ping_ipv6_loopback() {
-        ping_test("::1")
+        ping_test("::1", ("::1", "localhost"))
     }
 
     #[test]
     fn ping_ipv6_external() {
-        ping_test("2001:4860:4860::8888")
+        ping_test(
+            "2001:4860:4860::8888",
+            ("2001:4860:4860::8888", "google.com"),
+        )
     }
 
     // Host
 
     #[test]
     fn ping_localhost() {
-        ping_test("localhost")
+        ping_test("localhost", ("127.0.0.1", "localhost"))
     }
 
     #[test]
     fn ping_domain() {
-        ping_test("example.com")
+        ping_test("example.com", ("93.184.216.34", "example.com"))
     }
 }
